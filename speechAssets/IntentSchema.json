@@ -1,16 +1,29 @@
 {
-  "intents": [
-    {
-      "intent": "GetNewFactIntent"
-    },
-    {
-      "intent": "AMAZON.HelpIntent"
-    },
-    {
-      "intent": "AMAZON.StopIntent"
-    },
-    {
-      "intent": "AMAZON.CancelIntent"
-    }
-  ]
+    "intents": [
+        {
+            "intent": "GetJiraTicket"
+        },
+        {
+            "intent": "GetInProgressJiraTickets"
+        },
+        {
+            "intent": "GetDoneJiraTickets"
+        },
+        {
+            "intent": "GetRemainingSprintDays"
+        },
+        {
+            "intent": "GetRemainingStoryPoints"
+        },
+        {
+            "intent": "AMAZON.HelpIntent"
+        },
+        {
+            "intent": "AMAZON.StopIntent"
+        },
+        {
+            "intent": "AMAZON.CancelIntent"
+        }
+
+    ]
 }
