@@ -7,7 +7,7 @@ var localVariables = require('./localVariables');
 //var parseString = require('xml2js').parseString;
 
 // Variables
-var jsonObject;
+var jsonObject = "";
 
 // Http Request Options
 var options = {
@@ -28,13 +28,11 @@ var req = http.request(options, function(res) {
 	res.setEncoding('utf8');
 	res.on('data', function (chunk) {
 		console.log('BODY: ' + chunk);
-		console.log(chunk.key);
+		var jsonChunk = JSON.parse(JSON.stringify(chunk));
+		var data = JSON.parse(chunk);
+		console.log('endSTATUS: ' + data.id);
 	});
 });
-
-
-
-
 req.end();
 //DEBUG
 //console.log('NamePassword: ' + localVariables.namePassword);
