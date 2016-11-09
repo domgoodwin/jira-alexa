@@ -3,3 +3,4 @@ GetInProgressJiraTickets How many tickets are in progress for this sprint
 GetDoneJiraTickets How many tickets are done in this sprint
 GetRemainingSprintDays How many days left in this sprint
 GetRemainingStoryPoints How many story points left
+GetAllProjects What projects are currently on JIRA

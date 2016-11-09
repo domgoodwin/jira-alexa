@@ -16,6 +16,9 @@
             "intent": "GetRemainingStoryPoints"
         },
         {
+            "intent": "GetAllProjects"
+        },
+        {
             "intent": "AMAZON.HelpIntent"
         },
         {
