@@ -1,55 +1,83 @@
-'use strict';
-var Alexa = require('alexa-sdk');
+// Alexa Skill prototype and helper functions
+// https://github.com/amzn/alexa-skills-kit-js/blob/master/samples/JiraAlexa/src/AlexaSkill.js 
+var AlexaSkill = require('./AlexaSkill');
+var http = require('http');
+var localVariables = require('./localVariables');
 
-var APP_ID = "amzn1.ask.skill.39f91b9f-9c19-4290-a96c-f0880f16713a";
-var SKILL_NAME = 'Zubair facts';
+// App ID for skill
+var APP_ID = localVariables.appID;
 
-/**
- * Array containing space facts.
- */
-var FACTS = [
-    "Zubair's middle name is Saleem",
-    "Zubair goes home to aston every week",
-    "Zubair and Ryan once shared a bed for a month",
-    "Zubair enjoys long walks on the beach",
-    "The only person Zubair loves is himself",
-    "Zubair has a micro penis",
-    "Zubair has a PHD in gwack"
-];
-
-exports.handler = function(event, context, callback) {
-    var alexa = Alexa.handler(event, context);
-    alexa.appId = APP_ID;
-    alexa.registerHandlers(handlers);
-    alexa.execute();
+// Jira-alexa 
+var JiraAlexa = function () {
+    AlexaSkill.call(this, APP_ID);
 };
 
-var handlers = {
-    'LaunchRequest': function () {
-        this.emit('GetFact');
-    },
-    'GetNewFactIntent': function () {
-        this.emit('GetFact');
-    },
-    'GetFact': function () {
-        // Get a random space fact from the space facts list
-        var factIndex = Math.floor(Math.random() * FACTS.length);
-        var randomFact = FACTS[factIndex];
+// Extend AlexaSkill
+JiraAlexa.prototype = Object.create(AlexaSkill.prototype);
+JiraAlexa.prototype.constructor = AlexaSkill;
 
-        // Create speech output
-        var speechOutput = "Here's your fact: " + randomFact;
+JiraAlexa.prototype.eventHandlers.onSessionStarted = function (sessionStartedRequest, session){
+    console.log("JiraAlexa onSessionStarted requestId: " + sessionStartedRequest.requestId
+        + ", sessionId: " + session.sessionId);
+    // Initilisation logic
+};
 
-        this.emit(':tellWithCard', speechOutput, SKILL_NAME, randomFact)
+JiraAlexa.prototype.eventHandlers.onLaunch = function (launchRequest, session, response) {
+    console.log("JiraAlexa onLaunch requestId: " + launchRequest.requestId + ", sessionId: " + session.sessionId);
+    var speechOutput = "Welcome to the Jira tools, what do you want?";
+    var repromptText = "Hello?";
+    response.ask(speechOutput, repromptText);
+};
+
+JiraAlexa.prototype.eventHandlers.onSessionEnded = function (sessionEndedRequest, session) {
+    console.log("JiraAlexa onSessionEnded requestId: " + sessionEndedRequest.requestId
+        + ", sessionId: " + session.sessionId);
+    // any cleanup logic goes here
+};
+
+// Intents
+JiraAlexa.prototype.intentHandlers = {
+    "GetAllProjects": function (intent, session, response){
+        // Http Request Options
+        namePassword = localVariables.namePassword;
+        var options = {
+            host: 'linux.domgoodw.in',
+            port: 8080,
+            path: '/rest/api/2/project',
+            method: 'GET',
+            json:true,
+            headers: {
+            'Authorization': 'Basic ' + namePassword
+            }
+        };        
+        var req = http.request(options, function(res) {
+            var speechOutput = "I have the following projects, ";
+            console.log('STATUS: ' + res.statusCode);
+            console.log('HEADERS: ' + JSON.stringify(res.headers));
+            res.setEncoding('utf8');
+            res.on('data', function (chunk) {
+                console.log('BODY: ' + chunk);
+                var jsonChunk = JSON.parse(JSON.stringify(chunk));
+                var data = JSON.parse(chunk);
+                var speechOutput = "These are the available projects: ";
+                for(var i = 0; i < data.length; i++) {
+                    speechOutput += data[i].name + ", ";
+                    console.log(data[i].name);
+                }
+                response.tellWithCard(speechOutput, "Card title", "Card test" );
+            });
+        });
+        req.end();
+        //response.tellWithCard("Output text", "Card title", "Card content");
     },
-    'AMAZON.HelpIntent': function () {
-        var speechOutput = "You can say tell me a space fact, or, you can say exit... What can I help you with?";
-        var reprompt = "What can I help you with?";
-        this.emit(':ask', speechOutput, reprompt);
-    },
-    'AMAZON.CancelIntent': function () {
-        this.emit(':tell', 'Goodbye!');
-    },
-    'AMAZON.StopIntent': function () {
-        this.emit(':tell', 'Goodbye!');
+    "AMAZON.HelpIntent": function (intent, session, response){
+        response.ask("DO something", "Do something");
     }
 };
+
+// Response handler
+exports.handler = function (event, context) { 
+    var jiraAlexa = new JiraAlexa();
+    jiraAlexa.execute(event, context);
+};
+
