@@ -48,6 +48,7 @@ JiraAlexa.prototype.intentHandlers = {
             }
             response.tellWithCard(speechOutput, "Card title", "Card test" );
         });
+
     },
     "AMAZON.HelpIntent": function (intent, session, response){
         response.ask("DO something", "Do something");
@@ -86,3 +87,4 @@ function httpRequest(path, cb){
     });
     req.end();
 };
+
