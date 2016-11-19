@@ -21,6 +21,7 @@ var options = {
 	'Authorization': 'Basic ' + localVariables.namePassword
 	}
 };
+var output = "dom is gay ";
 
 var req = http.request(options, function(res) {
 	console.log('STATUS: ' + res.statusCode);
@@ -33,8 +34,12 @@ var req = http.request(options, function(res) {
 		for(var i = 0; i < data.length; i++) {
             var obj = data[i];
             console.log(obj.name);
+			output = output + obj.name + ' ';
+
         }
+		console.log(output);
 	});
+	
 
 });
 
