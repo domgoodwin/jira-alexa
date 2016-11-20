@@ -39,12 +39,24 @@ JiraAlexa.prototype.eventHandlers.onSessionEnded = function (sessionEndedRequest
 JiraAlexa.prototype.intentHandlers = {
     "GetAllProjects": function (intent, session, response){
         
-        httpRequest('/rest/api/2/project', function(data){
+        httpRequest('/rest/api/2/project', 'GET', function(data){
             //console.log(data[0].name + 'dom is gay');
             var speechOutput = "Dominic, these are the available projects: ";
             for(var i = 0; i < data.length; i++) {
                 speechOutput += data[i].name + ", ";
                 console.log(data[i].name);
+            }
+            response.tellWithCard(speechOutput, "Card title", "Card test" );
+        });
+
+    },
+    "GetAllBoards": function (intent, session, response){
+        
+        httpRequest('/rest/agile/1.0/board', 'GET', function(data){
+            var speechOutput = "These are the current boards: ";
+            for(var i = 0; i < data.values.length; i++) {
+                speechOutput += data.values[i].name + ", ";
+                console.log(data.values[i].name);
             }
             response.tellWithCard(speechOutput, "Card title", "Card test" );
         });
@@ -61,13 +73,13 @@ exports.handler = function (event, context) {
     jiraAlexa.execute(event, context);
 };
 
-function httpRequest(path, cb){
+function httpRequest(path, method, cb){
     namePassword = localVariables.namePassword;
     var options = {
         host: 'linux.domgoodw.in',
         port: 8080,
         path: path,
-        method: 'GET',
+        method: method,
         json:true,
         headers: {
         'Authorization': 'Basic ' + namePassword
@@ -87,4 +99,3 @@ function httpRequest(path, cb){
     });
     req.end();
 };
-
