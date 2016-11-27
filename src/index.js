@@ -69,7 +69,8 @@ JiraAlexa.prototype.intentHandlers = {
         //TODO get rid of hard coded EJB
         httpRequest('/rest/agile/1.0/issue/EJB-' + intent.slots.Issue.value, 'GET', function(data){
             console.log(data.fields.description);
-            var speechOutput = "The description of the issue " + intent.slots.Issue.value + " is: " + data.fields.description;
+            var speechOutput = "The description of this issue is " + data.fields.description + ". It is estimated to be " 
+            + data.fields.customfield_10006 + " story points. Curently assigned to " + data.fields.assignee.name  ;
             response.tellWithCard(speechOutput, "Card title", "Card test" );
         });
 
