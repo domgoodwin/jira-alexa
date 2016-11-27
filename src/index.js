@@ -24,7 +24,10 @@ JiraAlexa.prototype.eventHandlers.onSessionStarted = function (sessionStartedReq
 
 JiraAlexa.prototype.eventHandlers.onLaunch = function (launchRequest, session, response) {
     console.log("JiraAlexa onLaunch requestId: " + launchRequest.requestId + ", sessionId: " + session.sessionId);
-    var speechOutput = "Welcome to the Jira tools, what do you want?";
+    var speechOutput = "Hi, my name is Dave and I am your Jira assistant" +
+    "<break time=\"0.5s\" /> I can do the following" +
+    "<break time=\"0.5s\" /> Get information on Jira issues" +
+    "<break time=\"0.5s\" /> Get information on Jira sprints or boards" ;
     var repromptText = "Hello?";
     response.ask(speechOutput, repromptText);
 };
@@ -41,7 +44,7 @@ JiraAlexa.prototype.intentHandlers = {
         
         httpRequest('/rest/api/2/project', 'GET', function(data){
             //console.log(data[0].name + 'dom is gay');
-            var speechOutput = "Dominic, these are the available projects: ";
+            var speechOutput = "The projects available to you are: ";
             for(var i = 0; i < data.length; i++) {
                 speechOutput += data[i].name + ", ";
                 console.log(data[i].name);
@@ -57,6 +60,31 @@ JiraAlexa.prototype.intentHandlers = {
             for(var i = 0; i < data.values.length; i++) {
                 speechOutput += data.values[i].name + ", ";
                 console.log(data.values[i].name);
+            }
+            response.tellWithCard(speechOutput, "Card title", "Card test" );
+        });
+
+    },
+    "GetInformationOnIssue": function (intent, session, response){
+        //TODO get rid of hard coded EJB
+        httpRequest('/rest/agile/1.0/issue/EJB-' + intent.slots.Issue.value, 'GET', function(data){
+            console.log(data.fields.description);
+            var speechOutput = "The description of the issue " + intent.slots.Issue.value + " is: " + data.fields.description;
+            response.tellWithCard(speechOutput, "Card title", "Card test" );
+        });
+
+    },
+    "GetIssuesAssignedToMe": function (intent, session, response){
+        //TODO get rid of hard coded EJB (1)
+        var boardID = '1';
+        httpRequest('/rest/agile/1.0/board/' + boardID + '/issue', 'GET', function(data){
+            var speechOutput = "The issues assigned to you on the board " + boardID + " are: ";
+            for(var i = 0; i < data.issues.length; i++) {
+                var issue = data.issues[i].fields;
+                if(issue.assignee.name === 'ethan'){
+                    speechOutput += data.issues[i].key + ", ";
+                    console.log(data.issues[i].key);
+                }
             }
             response.tellWithCard(speechOutput, "Card title", "Card test" );
         });
@@ -85,15 +113,17 @@ function httpRequest(path, method, cb){
         'Authorization': 'Basic ' + namePassword
         }
     };     
-
+    console.log('Requested path: ' + path);
     var req = http.request(options, function(res) {
         console.log('STATUS: ' + res.statusCode);
         console.log('HEADERS: ' + JSON.stringify(res.headers));
         res.setEncoding('utf8');
-        res.on('data', function (chunk) {
-            console.log('BODY: ' + chunk);
-            var jsonChunk = JSON.parse(JSON.stringify(chunk));
-            var data = JSON.parse(chunk);
+        var rawData = '';
+        res.on('data', (chunk) => rawData += chunk)
+        res.on('end', () => {
+            console.log('BODY: ' + rawData);
+            var jsonChunk = JSON.parse(JSON.stringify(rawData));
+            var data = JSON.parse(rawData);
             cb(data);
         });
     });
