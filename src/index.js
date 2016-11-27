@@ -25,9 +25,9 @@ JiraAlexa.prototype.eventHandlers.onSessionStarted = function (sessionStartedReq
 JiraAlexa.prototype.eventHandlers.onLaunch = function (launchRequest, session, response) {
     console.log("JiraAlexa onLaunch requestId: " + launchRequest.requestId + ", sessionId: " + session.sessionId);
     var speechOutput = "Hi, my name is Dave and I am your Jira assistant" +
-    "<break time=\"0.5s\" /> I can do the following" +
-    "<break time=\"0.5s\" /> Get information on Jira issues" +
-    "<break time=\"0.5s\" /> Get information on Jira sprints or boards" ;
+    "I can do the following" +
+    "Get information on Jira issues" +
+    "Get information on Jira sprints or boards" ;
     var repromptText = "Hello?";
     response.ask(speechOutput, repromptText);
 };
