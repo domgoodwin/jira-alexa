@@ -121,7 +121,8 @@ JiraAlexa.prototype.intentHandlers = {
         httpRequest('/rest/agile/1.0/board/' + boardID + '/sprint', 'GET', function(data){
             var speechOutput = "";
             for(var i = 0; i < data.values.length; i++) {
-                if(data.values[i].state === "active"){
+                if(data.values[i].state === "active")
+                {
                     console.log(data.values[i].name);
 
                     var sprintEndDate = new Date(Date.parse(data.values[i].endDate));
@@ -137,6 +138,35 @@ JiraAlexa.prototype.intentHandlers = {
                     speechOutput = "There are no active sprints."
                 }
                 
+            }
+            response.tellWithCard(speechOutput, "Card title", "Card test" );
+        });
+    },
+    "GetStoryPointsRemainingInSprint": function (intent, session, response){
+        //TODO get rid of hard coded EJB (1)
+        var boardID = '1';
+        var sprintID;
+        var storyPointTotal;
+        httpRequest('/rest/agile/1.0/board/' + boardID + '/sprint', 'GET', function(data){
+            var speechOutput = "";
+            for(var i = 0; i < data.values.length; i++) {
+                if(data.values[i].state === "active")
+                {
+                   sprintID = data.values[i].id; 
+                }
+            }
+            if(sprintID!=null)
+            {
+               httpRequest('/rest/agile/1.0/board/'+ boardID + '/sprint/'+ sprintID + '/issue' , 'GET', function(data){
+                   for(var i = 0; i < data.issues.length; i++)
+                   {
+                       if(data.issues[i].status.name === 'To Do' || data.issues[i].status.name === 'In Progress')
+                       {
+                           storyPointTotal += Parse.Int(data.issues[i].customfield_10006);
+                           console.log(storyPointTotal);
+                       }
+                   }
+               }); 
             }
             response.tellWithCard(speechOutput, "Card title", "Card test" );
         });
