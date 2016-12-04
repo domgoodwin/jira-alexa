@@ -65,7 +65,7 @@ JiraAlexa.prototype.intentHandlers = {
                 speechOutput += data[i].name + ", ";
                 console.log(data[i].name);
             }
-            response.tellWithCard(speechOutput, "Card title", "Card test" );
+            response.tellWithCard(speechOutput, "Available projects", speechOutput);
         });
 
     },
@@ -77,7 +77,7 @@ JiraAlexa.prototype.intentHandlers = {
                 speechOutput += data.values[i].name + ", ";
                 console.log(data.values[i].name);
             }
-            response.tellWithCard(speechOutput, "Card title", "Card test" );
+            response.tellWithCard(speechOutput, "Available boards", speechOutput );
         });
 
     },
@@ -92,7 +92,7 @@ JiraAlexa.prototype.intentHandlers = {
             }
             var speechOutput = story + ". The description of this issue is " + description + ". It is estimated to be " 
             + data.fields.customfield_10006 + " story points. Currently assigned to " + data.fields.assignee.name  ;
-            response.tellWithCard(speechOutput, "Card title", "Card test" );
+            response.tellWithCard(speechOutput, "Information on issue " + intent.slots.Issue.value.toString() + " on EJB board", speechOutput);
         });
 
     },
@@ -103,12 +103,15 @@ JiraAlexa.prototype.intentHandlers = {
             var speechOutput = "The issues assigned to you on the board " + boardID + " are: ";
             for(var i = 0; i < data.issues.length; i++) {
                 var issue = data.issues[i].fields;
-                if(issue.assignee.name === 'ethan'){
-                    speechOutput += data.issues[i].key + ", ";
-                    console.log(data.issues[i].key);
+                if(issue.assignee != null){
+                    if(issue.assignee.name === 'ethan'){
+                        speechOutput += data.issues[i].key + ", ";
+                        console.log(data.issues[i].key);
                 }
+                }
+
             }
-            response.tellWithCard(speechOutput, "Card title", "Card test" );
+            response.tellWithCard(speechOutput, "Issue assigned to you", speechOutput);
         });
 
     },
@@ -119,24 +122,30 @@ JiraAlexa.prototype.intentHandlers = {
         console.log(status);
         httpRequest('/rest/agile/1.0/board/' + boardID + '/issue', 'GET', function(data){
             var speechOutput = "The " + status + " on board " + boardID + " are: ";
+            var issueCount = 0;
             for(var i = 0; i < data.issues.length; i++) {
                 var issue = data.issues[i].fields;
                 if(issue.status.name.toLowerCase() === status){
                     console.log(issue.status.name);
                     speechOutput += data.issues[i].key + ", ";
                     console.log(data.issues[i].key);
+                    issueCount++;
                 }
-                else if (i === data.issues.length - 1){
-                    speechOutput = "There are currently no " + status + " issues on board" + boardID;
+                if (i === data.issues.length - 1 && issueCount === 0){
+                    speechOutput = "There are currently no " + status + " issues on board " + boardID;
                 }
             }
             if(status === undefined){
                 speechOutput = "I'm sorry. I did not recognise that status";
             }
-            response.tellWithCard(speechOutput, "Card title", "Card test" );
+            response.tellWithCard(speechOutput, "Jira " + status + " issues", speechOutput);
         });
 
+<<<<<<< HEAD
     },
+=======
+    },    
+>>>>>>> 880be30f1b61557d22962664bdddc36d1729268c
     "GetSprintDaysRemaining" : function (intent, session, response){
         //TODO get rid of hard coded EJB (1)
         var boardID = '1';
@@ -179,8 +188,38 @@ JiraAlexa.prototype.intentHandlers = {
                 }
                 
             }
-            response.tellWithCard(speechOutput, "Card title", "Card test" );
+            response.tellWithCard(speechOutput, "Sprint information", speechOutput);
         });
+    },
+    "AddIssue": function (intent, session, response){
+        //TODO remove hard coded project ID
+        var issueText = intent.slots.IssueText.value;
+        console.log(issueText);
+        var postOptions = {
+            fields: {
+                project:{
+                    id:10000
+                },
+                issuetype: {
+                    id: 10002,
+                    description: 'gh.issue.story.desc',
+                    name: 'Story',
+                    subtask: false
+                },
+                summary: issueText
+		    }
+        }
+        httpRequestPOST('/rest/api/2/issue', 'POST', postOptions, function(data){
+            var speechOutput;
+            if(data.id === undefined){
+                speechOutput = "Unable to add story due to " + data.errors;
+            }
+            else{
+                speechOutput = "User story added, ID of user story is: " + data.id;
+            }
+            response.tellWithCard(speechOutput, "New story added to EJB", issueText );
+        });
+
     },
     "GetStoryPointsRemainingInSprint": function (intent, session, response){
         //TODO get rid of hard coded EJB (1)
@@ -241,5 +280,37 @@ function httpRequest(path, method, cb){
             cb(data);
         });
     });
+    req.end();
+};
+function httpRequestPOST(path, method, postData, cb){
+    namePassword = localVariables.namePassword;
+    var options = {
+        host: 'linux.domgoodw.in',
+        port: 8080,
+        path: path,
+        method: method,
+        json:true,
+        headers: {
+            'Authorization': 'Basic ' + namePassword,
+            'Content-Type': 'application/json',
+            'Content-Length': Buffer.byteLength(postData)
+        }
+    };     
+    console.log('Data: ' + JSON.stringify(postData));
+    console.log('Requested path: ' + path);
+    var req = http.request(options, function(res) {
+        console.log('STATUS: ' + res.statusCode);
+        console.log('HEADERS: ' + JSON.stringify(res.headers));
+        res.setEncoding('utf8');
+        var rawData = '';
+        res.on('data', (chunk) => rawData += chunk)
+        res.on('end', () => {
+            console.log('BODY: ' + rawData);
+            var jsonChunk = JSON.parse(JSON.stringify(rawData));
+            var data = JSON.parse(rawData);
+            cb(data);
+        });
+    });
+    req.write(postData);
     req.end();
 };
