@@ -112,7 +112,7 @@ JiraAlexa.prototype.intentHandlers = {
         });
 
     },
-        "GetStatusIssues": function (intent, session, response){
+    "GetStatusIssues": function (intent, session, response){
         //TODO get rid of hard coded EJB (1)
         var boardID = '1';
         var status = intent.slots.Status.value;
@@ -136,7 +136,8 @@ JiraAlexa.prototype.intentHandlers = {
             response.tellWithCard(speechOutput, "Card title", "Card test" );
         });
 
-    },    "GetSprintDaysRemaining" : function (intent, session, response){
+    },
+    "GetSprintDaysRemaining" : function (intent, session, response){
         //TODO get rid of hard coded EJB (1)
         var boardID = '1';
 
@@ -184,19 +185,11 @@ JiraAlexa.prototype.intentHandlers = {
     "GetStoryPointsRemainingInSprint": function (intent, session, response){
         //TODO get rid of hard coded EJB (1)
         var boardID = '1';
-        var sprintID;
-        var storyPointTotal;
-        httpRequest('/rest/agile/1.0/board/' + boardID + '/sprint', 'GET', function(data){
-            var speechOutput = "";
-            for(var i = 0; i < data.values.length; i++) {
-                if(data.values[i].state === "active")
-                {
-                   sprintID = data.values[i].id; 
-                }
-            }
-            if(sprintID!=null)
-            {
-               httpRequest('/rest/agile/1.0/board/'+ boardID + '/sprint/'+ sprintID + '/issue' , 'GET', function(data){
+        //TODO function to get sprintID from active sprint
+        var sprintID = '3';
+        var storyPointTotal = 0;
+        var speechOutput = "";
+         httpRequest('/rest/agile/1.0/board/'+ boardID + '/sprint/'+ sprintID + '/issue' , 'GET', function(data){
                    for(var i = 0; i < data.issues.length; i++)
                    {
                        if(data.issues[i].status.name === 'To Do' || data.issues[i].status.name === 'In Progress')
@@ -205,10 +198,10 @@ JiraAlexa.prototype.intentHandlers = {
                            console.log(storyPointTotal);
                        }
                    }
+                   speechOutPut = "There are " + storyPointTotal.toString + " story points remaining";
+
+                   response.tellWithCard(speechOutput, "Card title", "Card test" );
                }); 
-            }
-            response.tellWithCard(speechOutput, "Card title", "Card test" );
-        });
     },
     
     "AMAZON.HelpIntent": function (intent, session, response){
