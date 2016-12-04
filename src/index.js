@@ -2,6 +2,7 @@
 // https://github.com/amzn/alexa-skills-kit-js/blob/master/samples/JiraAlexa/src/AlexaSkill.js 
 var AlexaSkill = require('./AlexaSkill');
 var http = require('http');
+// var moment = require('moment');
 var localVariables = require('./localVariables');
 
 // App ID for skill
@@ -24,11 +25,11 @@ JiraAlexa.prototype.eventHandlers.onSessionStarted = function (sessionStartedReq
 
 JiraAlexa.prototype.eventHandlers.onLaunch = function (launchRequest, session, response) {
     console.log("JiraAlexa onLaunch requestId: " + launchRequest.requestId + ", sessionId: " + session.sessionId);
-    var speechOutput = "Hi, my name is Dave and I am your Jira assistant" +
+    var speechOutput = "Hi, my name is jo, and I am your jeerra assistant" +
     "I can do the following" +
-    "Get information on Jira issues" +
-    "Get information on Jira sprints or boards" ;
-    var repromptText = "Hello?";
+    "Get information on Jeerra issues" +
+    "Get information on Jeerra sprints or boards" ;
+    var repromptText = "Hello, is it me you're looking for?";
     response.ask(speechOutput, repromptText);
 };
 
@@ -70,11 +71,12 @@ JiraAlexa.prototype.intentHandlers = {
         httpRequest('/rest/agile/1.0/issue/EJB-' + intent.slots.Issue.value, 'GET', function(data){
             console.log(data.fields.description);
             var description = data.fields.description;
+            var story = data.fields.summary;
             if(description === null){
                 description = "currently blank"
             }
-            var speechOutput = "The description of this issue is " + description + ". It is estimated to be " 
-            + data.fields.customfield_10006 + " story points. Curently assigned to " + data.fields.assignee.name  ;
+            var speechOutput = story + ". The description of this issue is " + description + ". It is estimated to be " 
+            + data.fields.customfield_10006 + " story points. Currently assigned to " + data.fields.assignee.name  ;
             response.tellWithCard(speechOutput, "Card title", "Card test" );
         });
 
@@ -95,6 +97,51 @@ JiraAlexa.prototype.intentHandlers = {
         });
 
     },
+    "GetSprintDaysRemaining" : function (intent, session, response){
+        //TODO get rid of hard coded EJB (1)
+        var boardID = '1';
+
+        var oneDay = 24*60*60*1000;
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1;
+
+        var yyyy = today.getFullYear();
+        if(dd<10){
+            dd='0'+dd
+        } 
+        if(mm<10){
+            mm='0'+mm
+        } 
+        var today = mm+'/'+dd+'/'+yyyy;
+        var todayDate = new Date(Date.parse(today));
+        console.log(todayDate);
+        var daysRemaining;
+
+        httpRequest('/rest/agile/1.0/board/' + boardID + '/sprint', 'GET', function(data){
+            var speechOutput = "";
+            for(var i = 0; i < data.values.length; i++) {
+                if(data.values[i].state === "active"){
+                    console.log(data.values[i].name);
+
+                    var sprintEndDate = new Date(Date.parse(data.values[i].endDate));
+                    console.log(sprintEndDate);
+
+                    // daysRemaining = Math.round(Math.abs((sprintEndDate.getTime() - todayDate.getTime())/(oneDay)));
+                    daysRemaining = Math.floor((sprintEndDate - todayDate)/(oneDay));
+                    console.log(daysRemaining);
+                    speechOutput = "There are " + daysRemaining + " days remaining.";
+
+                }else{
+                    console.log("No active sprints");
+                    speechOutput = "There are no active sprints."
+                }
+                
+            }
+            response.tellWithCard(speechOutput, "Card title", "Card test" );
+        });
+    },
+    
     "AMAZON.HelpIntent": function (intent, session, response){
         response.ask("DO something", "Do something");
     }
