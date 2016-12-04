@@ -25,11 +25,12 @@ JiraAlexa.prototype.eventHandlers.onSessionStarted = function (sessionStartedReq
 
 JiraAlexa.prototype.eventHandlers.onLaunch = function (launchRequest, session, response) {
     console.log("JiraAlexa onLaunch requestId: " + launchRequest.requestId + ", sessionId: " + session.sessionId);
-    var speechOutput = "Hi, my name is jo, and I am your jeerra assistant" +
-    "I can do the following" +
-    "Get information on Jeerra issues" +
-    "Get information on Jeerra sprints or boards" ;
-    var repromptText = "Hello, is it me you're looking for?";
+    var speech = "<speak>Hi, my name is jo <break time=\"0.4s\"/> I am your jeera assistant <break time=\"0.4s\"/> I can do the following <break time=\"0.4s\"/> Get information on jeera issues <break time=\"0.4s\"/> Get information on jeera sprints or boards</speak>"
+    var speechOutput = {
+        speech: speech,
+        type: AlexaSkill.speechOutputType.SSML
+    };
+    var repromptText = "What is it you would like me to do?";
     response.ask(speechOutput, repromptText);
 };
 
@@ -39,8 +40,22 @@ JiraAlexa.prototype.eventHandlers.onSessionEnded = function (sessionEndedRequest
     // any cleanup logic goes here
 };
 
+
 // Intents
 JiraAlexa.prototype.intentHandlers = {
+    "AMAZON.HelpIntent": function (intent, session, response) {
+        response.tell("Launch me again to here what I can do");
+    },
+
+    "AMAZON.StopIntent": function (intent, session, response) {
+        var speechOutput = "Jo says Goodbye";
+        response.tell(speechOutput);
+    },
+
+    "AMAZON.CancelIntent": function (intent, session, response) {
+        var speechOutput = "Jo says Goodbye";
+        response.tell(speechOutput);
+    },
     "GetAllProjects": function (intent, session, response){
         
         httpRequest('/rest/api/2/project', 'GET', function(data){
@@ -97,7 +112,31 @@ JiraAlexa.prototype.intentHandlers = {
         });
 
     },
-    "GetSprintDaysRemaining" : function (intent, session, response){
+        "GetStatusIssues": function (intent, session, response){
+        //TODO get rid of hard coded EJB (1)
+        var boardID = '1';
+        var status = intent.slots.Status.value;
+        console.log(status);
+        httpRequest('/rest/agile/1.0/board/' + boardID + '/issue', 'GET', function(data){
+            var speechOutput = "The " + status + " on board " + boardID + " are: ";
+            for(var i = 0; i < data.issues.length; i++) {
+                var issue = data.issues[i].fields;
+                if(issue.status.name.toLowerCase() === status){
+                    console.log(issue.status.name);
+                    speechOutput += data.issues[i].key + ", ";
+                    console.log(data.issues[i].key);
+                }
+                else if (i === data.issues.length - 1){
+                    speechOutput = "There are currently no " + status + " issues on board" + boardID;
+                }
+            }
+            if(status === undefined){
+                speechOutput = "I'm sorry. I did not recognise that status";
+            }
+            response.tellWithCard(speechOutput, "Card title", "Card test" );
+        });
+
+    },    "GetSprintDaysRemaining" : function (intent, session, response){
         //TODO get rid of hard coded EJB (1)
         var boardID = '1';
 
