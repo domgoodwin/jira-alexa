@@ -228,17 +228,20 @@ JiraAlexa.prototype.intentHandlers = {
         var speechOutput = "";
 
         httpRequest('/rest/agile/1.0/board/'+ boardID + '/sprint/'+ sprintID + '/issue' , 'GET', function(data){
+            console.log(data.issues[1].fields.status.name);
             for(var i = 0; i < data.issues.length; i++){
-                if(data.issues[i].fields.status.name === 'To Do' || data.issues[i].fields.status.name === 'In Progress'){
-                    console.log(data.issues[i].fields.name);
-                    console.log(data.issues[i].customerfield_10006);
-                    storyPointTotal += Parse.Int(data.issues[i].customfield_10006);
+                var issue = data.issues[i].fields;
+                console.log(issue.name);
+                if(issue.status.name === 'To Do' || issue.status.name === 'In Progress'){
+                    console.log(issue.status.name);
+                    console.log(issue.customfield_10006);
+                    storyPointTotal += parseInt(issue.customfield_10006);
                     console.log(storyPointTotal);
                 }
             }
-            speechOutPut = "There are " + storyPointTotal.toString + " story points remaining";
+            speechOutput = "There are " + storyPointTotal + " story points remaining";
 
-            response.tellWithCard(speechOutput, "Card title", "Card test" );
+            response.tellWithCard(speechOutput, "Board 1: Sprint 3 information", speechOutput);
         }); 
     },
     
