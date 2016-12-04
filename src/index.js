@@ -141,11 +141,9 @@ JiraAlexa.prototype.intentHandlers = {
             response.tellWithCard(speechOutput, "Jira " + status + " issues", speechOutput);
         });
 
-<<<<<<< HEAD
-    },
-=======
-    },    
->>>>>>> 880be30f1b61557d22962664bdddc36d1729268c
+
+    },   
+
     "GetSprintDaysRemaining" : function (intent, session, response){
         //TODO get rid of hard coded EJB (1)
         var boardID = '1';
@@ -228,19 +226,20 @@ JiraAlexa.prototype.intentHandlers = {
         var sprintID = '3';
         var storyPointTotal = 0;
         var speechOutput = "";
-         httpRequest('/rest/agile/1.0/board/'+ boardID + '/sprint/'+ sprintID + '/issue' , 'GET', function(data){
-                   for(var i = 0; i < data.issues.length; i++)
-                   {
-                       if(data.issues[i].status.name === 'To Do' || data.issues[i].status.name === 'In Progress')
-                       {
-                           storyPointTotal += Parse.Int(data.issues[i].customfield_10006);
-                           console.log(storyPointTotal);
-                       }
-                   }
-                   speechOutPut = "There are " + storyPointTotal.toString + " story points remaining";
 
-                   response.tellWithCard(speechOutput, "Card title", "Card test" );
-               }); 
+        httpRequest('/rest/agile/1.0/board/'+ boardID + '/sprint/'+ sprintID + '/issue' , 'GET', function(data){
+            for(var i = 0; i < data.issues.length; i++){
+                if(data.issues[i].fields.status.name === 'To Do' || data.issues[i].fields.status.name === 'In Progress'){
+                    console.log(data.issues[i].fields.name);
+                    console.log(data.issues[i].customerfield_10006);
+                    storyPointTotal += Parse.Int(data.issues[i].customfield_10006);
+                    console.log(storyPointTotal);
+                }
+            }
+            speechOutPut = "There are " + storyPointTotal.toString + " story points remaining";
+
+            response.tellWithCard(speechOutput, "Card title", "Card test" );
+        }); 
     },
     
     "AMAZON.HelpIntent": function (intent, session, response){
