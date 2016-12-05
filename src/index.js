@@ -207,6 +207,7 @@ JiraAlexa.prototype.intentHandlers = {
                 summary: issueText
 		    }
         }
+        console.log(JSON.stringify(intent));
         httpRequestPOST('/rest/api/2/issue', 'POST', postOptions, function(data){
             var speechOutput;
             if(data.id === undefined){

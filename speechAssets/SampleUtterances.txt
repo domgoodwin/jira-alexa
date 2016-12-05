@@ -1,6 +1,21 @@
-GetJiraTicket Give me information on ticket xyz
-GetInProgressJiraTickets How many tickets are in progress for this sprint
-GetDoneJiraTickets How many tickets are done in this sprint
-GetRemainingSprintDays How many days left in this sprint
-GetRemainingStoryPoints How many story points left
 GetAllProjects What projects are currently on JIRA
+GetAllProjects What projects are available
+GetAllBoards What boards are currently on JIRA
+GetAllBoards What boards are available
+GetInformationOnIssue to get the issue {Issue}
+GetInformationOnIssue what is issue {Issue}
+GetInformationOnIssue get issue {Issue}
+GetInformationOnIssue to get the issue {Issue}
+GetIssuesAssignedToMe what is assigned to me
+GetIssuesAssignedToMe what issues are currently assigned to me
+GetIssuesAssignedToMe what issues are assigned to me
+GetSprintDaysRemaining how many days remain in the sprint
+GetSprintDaysRemaining how many days are left in this sprint
+GetSprintDaysRemaining how many days remaining for this sprint
+GetStoryPointsRemainingInSprint how many story points left
+GetStoryPointsRemainingInSprint how many story points are left in the sprint
+GetStoryPointsRemainingInSprint get remaining story points in the sprint
+GetStoryPointsRemainingInSprint retrieve story points left
+GetStatusIssues what issues are {Status}
+GetStatusIssues get {Status} issues
+GetStatusIssues get me {Status} issues

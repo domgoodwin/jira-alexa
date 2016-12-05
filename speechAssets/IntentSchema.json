@@ -1,22 +1,37 @@
 {
     "intents": [
         {
-            "intent": "GetJiraTicket"
-        },
-        {
-            "intent": "GetInProgressJiraTickets"
-        },
-        {
-            "intent": "GetDoneJiraTickets"
-        },
-        {
-            "intent": "GetRemainingSprintDays"
-        },
-        {
-            "intent": "GetRemainingStoryPoints"
-        },
-        {
             "intent": "GetAllProjects"
+        },
+     	{
+            "intent": "GetAllBoards"
+        },
+        {
+          	"intent": "GetInformationOnIssue",      
+          	"slots": [
+            {
+              "name": "Issue",
+              "type": "LIST_OF_ISSUES"
+            }
+           ] 
+        },
+      	{
+          	"intent": "GetIssuesAssignedToMe"
+        },
+      	{
+          	"intent": "GetSprintDaysRemaining"
+        },
+      	{
+           	"intent": "GetStatusIssues",
+          	"slots": [
+            {
+              "name": "Status",
+              "type": "LIST_OF_STATUSES"
+            }
+            ]
+      	},
+     	{
+            "intent": "GetStoryPointsRemainingInSprint"
         },
         {
             "intent": "AMAZON.HelpIntent"
