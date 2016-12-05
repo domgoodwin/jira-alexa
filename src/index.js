@@ -25,7 +25,7 @@ JiraAlexa.prototype.eventHandlers.onSessionStarted = function (sessionStartedReq
 
 JiraAlexa.prototype.eventHandlers.onLaunch = function (launchRequest, session, response) {
     console.log("JiraAlexa onLaunch requestId: " + launchRequest.requestId + ", sessionId: " + session.sessionId);
-    var speech = "<speak>Hi, my name is jo <break time=\"0.4s\"/> I am your jeera assistant <break time=\"0.4s\"/> I can do the following <break time=\"0.4s\"/> Get information on jeera issues <break time=\"0.4s\"/> Get information on jeera sprints or boards</speak>"
+    var speech = "<speak>Hi, my name is Dave <break time=\"0.4s\"/> I am your jeera assistant <break time=\"0.4s\"/> I can do the following <break time=\"0.4s\"/> Get information on jeera issues <break time=\"0.4s\"/> Get information on jeera sprints or boards</speak>"
     var speechOutput = {
         speech: speech,
         type: AlexaSkill.speechOutputType.SSML
@@ -48,12 +48,12 @@ JiraAlexa.prototype.intentHandlers = {
     },
 
     "AMAZON.StopIntent": function (intent, session, response) {
-        var speechOutput = "Jo says Goodbye";
+        var speechOutput = "Goodbye";
         response.tell(speechOutput);
     },
 
     "AMAZON.CancelIntent": function (intent, session, response) {
-        var speechOutput = "Jo says Goodbye";
+        var speechOutput = "Goodbye";
         response.tell(speechOutput);
     },
     "GetAllProjects": function (intent, session, response){
@@ -244,6 +244,10 @@ JiraAlexa.prototype.intentHandlers = {
 
             response.tellWithCard(speechOutput, "Board 1: Sprint 3 information", speechOutput);
         }); 
+    },
+    "WhosGoingToWin": function (intent, session, response){
+        var speechOutput = "I am.";
+        response.tellWithCard(speechOutput, "Winner of Tech Challenge 2016", speechOutput); 
     },
     
     "AMAZON.HelpIntent": function (intent, session, response){
